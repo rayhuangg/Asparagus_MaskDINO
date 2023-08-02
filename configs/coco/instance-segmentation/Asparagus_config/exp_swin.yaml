@@ -1,0 +1,24 @@
+_BASE_: ../swin/maskdino_R50_bs16_50ep_4s_dowsample1_1024.yaml
+MODEL:
+  ROI_HEADS:
+    NUM_CLASSES: 2
+  SEM_SEG_HEAD:
+    NUM_CLASSES: 2
+  RETINANET:
+    NUM_CLASSES: 2
+SOLVER:
+  LR_SCHEDULER_NAME: WarmupCosineLR
+  MAX_ITER: 50000
+  STEPS: (30000, 40000)
+  CHECKPOINT_PERIOD: 5000
+DATASETS:
+  TRAIN: ("asparagus_train_full",)
+  TEST: ("asparagus_val_full",)
+  # TEST: ("asparagus_val_small",)
+  # TRAIN: ("asparagus_train_small",)
+INPUT:
+  MAX_SIZE_TEST: 1333
+  MAX_SIZE_TRAIN: 1333
+TEST:
+  EVAL_PERIOD: 0 # default 5000
+SEED: 10631026

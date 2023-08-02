@@ -335,13 +335,14 @@ def setup(args):
     add_deeplab_config(cfg)
     add_maskdino_config(cfg)
     cfg.merge_from_file(args.config_file)
+
+    date = datetime.now().strftime("%Y%m%d_%H%M%S")
+    if args.eval_only:
+        train_outdir = cfg.OUTPUT_DIR
+        cfg.OUTPUT_DIR = f"{train_outdir}_evaluation_time-{date}"
+        os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+
     cfg.merge_from_list(args.opts)
-
-    if not args.eval_only:
-        date = datetime.now().strftime("%Y%m%d_%H%M%S")
-        cfg.OUTPUT_DIR = f"./output/{date}"
-
-    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 
     cfg.freeze()
     default_setup(cfg, args)
@@ -352,12 +353,12 @@ def setup(args):
 def main(args):
     #========= Register the dataset =========
     # small test
-    # register_coco_instances('asparagus_train', {'_background_': 0, 'stalk': 1, 'spear': 2} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
-    # register_coco_instances('asparagus_val', {'_background_': 0, 'stalk': 1, 'spear': 2} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    # register_coco_instances('asparagus_train_small', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    # register_coco_instances('asparagus_val_small', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
 
     # full data
-    register_coco_instances('asparagus_train', {'_background_': 0, 'stalk': 1, 'spear': 2} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
-    register_coco_instances('asparagus_val', {'_background_': 0, 'stalk': 1, 'spear': 2} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    register_coco_instances('asparagus_train_full', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    register_coco_instances('asparagus_val_full', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
 
 
     cfg = setup(args)
@@ -389,7 +390,8 @@ if __name__ == "__main__":
     parser.add_argument('--EVAL_FLAG', type=int, default=1)
     args = parser.parse_args()
     # random port
-    port = random.randint(1000, 20000)
+    # port = random.randint(1000, 20000)
+    port = 1026
     args.dist_url = 'tcp://127.0.0.1:' + str(port)
     print("Command Line Args:", args)
     print("pwd:", os.getcwd())
