@@ -17,6 +17,7 @@ import copy
 import itertools
 import logging
 import os
+from datetime import datetime
 
 from collections import OrderedDict
 from typing import Any, Dict, List, Set
@@ -27,6 +28,7 @@ import detectron2.utils.comm as comm
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog, build_detection_train_loader
+from detectron2.data.datasets import register_coco_instances
 
 from detectron2.evaluation import (
     CityscapesInstanceEvaluator,
@@ -334,6 +336,13 @@ def setup(args):
     add_maskdino_config(cfg)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+
+    if not args.eval_only:
+        date = datetime.now().strftime("%Y%m%d_%H%M%S")
+        cfg.OUTPUT_DIR = f"./output/{date}"
+
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+
     cfg.freeze()
     default_setup(cfg, args)
     setup_logger(output=cfg.OUTPUT_DIR, distributed_rank=comm.get_rank(), name="maskdino")
@@ -341,6 +350,16 @@ def setup(args):
 
 
 def main(args):
+    #========= Register the dataset =========
+    # small test
+    # register_coco_instances('asparagus_train', {'_background_': 0, 'stalk': 1, 'spear': 2} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    # register_coco_instances('asparagus_val', {'_background_': 0, 'stalk': 1, 'spear': 2} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+
+    # full data
+    register_coco_instances('asparagus_train', {'_background_': 0, 'stalk': 1, 'spear': 2} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    register_coco_instances('asparagus_val', {'_background_': 0, 'stalk': 1, 'spear': 2} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+
+
     cfg = setup(args)
     print("Command cfg:", cfg)
     if args.eval_only:

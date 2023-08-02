@@ -52,3 +52,5 @@ _darcs
 /models
 /snippet
 .DS_Store
+train.sh
+val.sh
