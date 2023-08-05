@@ -54,3 +54,4 @@ _darcs
 .DS_Store
 train.sh
 val.sh
+demo/demo.sh

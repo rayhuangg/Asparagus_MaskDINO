@@ -22,8 +22,8 @@ from detectron2.config import get_cfg
 from detectron2.data.detection_utils import read_image
 from detectron2.projects.deeplab import add_deeplab_config
 from detectron2.utils.logger import setup_logger
+from detectron2.utils.visualizer import ColorMode
 from detectron2.data.datasets import register_coco_instances
-
 
 from maskdino import add_maskdino_config
 from predictor import VisualizationDemo
@@ -100,9 +100,10 @@ def test_opencv_video_format(codec, file_ext):
 
 if __name__ == "__main__":
     #========= Register the dataset =========
+    # leave the register part to make sure predict image have the label name.
     # small test
-    register_coco_instances('asparagus_train', {"thing_classes": ["stalk", "spear"]}, "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
-    register_coco_instances('asparagus_val', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    register_coco_instances('asparagus_train_full', {"thing_classes": ["stalk", "spear"], "thing_colors": [(41,245,0),(200,6,6)]}, "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    register_coco_instances('asparagus_val_full', {"thing_classes": ["stalk", "spear"], "thing_colors": [(41,245,0),(200,6,6)]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
 
     # full data
     # register_coco_instances('asparagus_train', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
@@ -116,7 +117,10 @@ if __name__ == "__main__":
 
     cfg = setup_cfg(args)
 
-    demo = VisualizationDemo(cfg)
+    # ColorMode: IMAGE, SEGMENTATION, IMAGE_BW
+    # Choose one for predict label
+    # SEGMENTATION: Use the label color define by the matadata.thing_colors in register dataset
+    demo = VisualizationDemo(cfg, instance_mode=ColorMode.SEGMENTATION)
 
     if args.input:
         if len(args.input) == 1:
@@ -125,6 +129,7 @@ if __name__ == "__main__":
         for path in tqdm.tqdm(args.input, disable=not args.output):
             # use PIL, to be consistent with evaluation
             img = read_image(path, format="BGR")
+            print(f"************** {img.shape}")
             start_time = time.time()
             predictions, visualized_output = demo.run_on_image(img)
             logger.info(

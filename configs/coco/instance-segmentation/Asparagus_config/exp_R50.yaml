@@ -1,4 +1,6 @@
 _BASE_: ../maskdino_R50_bs16_50ep_4s_dowsample1_2048.yaml
+DATALOADER:
+  NUM_WORKERS: 1 # default 4 還在嘗試 但應該不是這原因造成
 MODEL:
   ROI_HEADS:
     NUM_CLASSES: 2
