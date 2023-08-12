@@ -1,0 +1,20 @@
+_BASE_: ../maskdino_R50_bs16_50ep_3s_dowsample1_2048.yaml
+DATALOADER:
+  NUM_WORKERS: 4 # default 4 還在嘗試 但應該不是這原因造成
+MODEL:
+  ROI_HEADS:
+    NUM_CLASSES: 2
+  SEM_SEG_HEAD:
+    NUM_CLASSES: 2
+  RETINANET:
+    NUM_CLASSES: 2
+SOLVER:
+  MAX_ITER: 150000
+  STEPS: (90000, 130000)
+  CHECKPOINT_PERIOD: 5000
+DATASETS:
+  TRAIN: ("asparagus_train_full",)
+  TEST: ("asparagus_val_full",)
+TEST:
+  EVAL_PERIOD: 0 # default 5000
+SEED: 10631026

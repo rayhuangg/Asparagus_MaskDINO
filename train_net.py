@@ -349,9 +349,8 @@ def setup(args):
     setup_logger(output=cfg.OUTPUT_DIR, distributed_rank=comm.get_rank(), name="maskdino")
     return cfg
 
-
-def main(args):
-    #========= Register the dataset =========
+def register_my_dataset():
+    #========= Register COCO dataset =========
     # small test
     # register_coco_instances('asparagus_train_small', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
     # register_coco_instances('asparagus_val_small', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
@@ -365,6 +364,8 @@ def main(args):
     # register_coco_instances('asparagus_val', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230803_test_small_v2/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
 
 
+def main(args):
+    register_my_dataset()
     cfg = setup(args)
     print("Command cfg:", cfg)
     if args.eval_only:
