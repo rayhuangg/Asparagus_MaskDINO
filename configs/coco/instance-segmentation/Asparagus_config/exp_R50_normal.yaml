@@ -1,6 +1,6 @@
 _BASE_: ../maskdino_R50_bs16_50ep_3s_dowsample1_2048.yaml
 DATALOADER:
-  NUM_WORKERS: 4 # default 4 還在嘗試 但應該不是這原因造成
+  NUM_WORKERS: 4
 MODEL:
   ROI_HEADS:
     NUM_CLASSES: 2
@@ -8,6 +8,12 @@ MODEL:
     NUM_CLASSES: 2
   RETINANET:
     NUM_CLASSES: 2
+  MaskDINO:
+    TEST:
+      INSTANCE_ON: true
+      PANOPTIC_ON: false
+      SEMANTIC_ON: false
+      SEM_SEG_POSTPROCESSING_BEFORE_INFERENCE: true
 SOLVER:
   MAX_ITER: 150000
   STEPS: (90000, 130000)
@@ -16,5 +22,7 @@ DATASETS:
   TRAIN: ("asparagus_train_full",)
   TEST: ("asparagus_val_full",)
 TEST:
-  EVAL_PERIOD: 0 # default 5000
+  EVAL_PERIOD: 5000 # default 5000
+SOLVER:
+  CHECKPOINT_PERIOD: 10000
 SEED: 10631026

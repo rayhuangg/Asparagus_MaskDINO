@@ -351,17 +351,19 @@ def setup(args):
 
 def register_my_dataset():
     #========= Register COCO dataset =========
+    metadata = {"thing_classes": ["stalk", "spear"],
+                "thing_colors": [(41,245,0), (200,6,6)]}
     # small test
-    # register_coco_instances('asparagus_train_small', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
-    # register_coco_instances('asparagus_val_small', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    # register_coco_instances('asparagus_train_small', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "home/rayhuang/Asparagus_Dataset")
+    # register_coco_instances('asparagus_val_small', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
 
     # full data
-    register_coco_instances('asparagus_train_full', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
-    register_coco_instances('asparagus_val_full', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    # register_coco_instances('asparagus_train_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "home/rayhuang/Asparagus_Dataset")
+    # register_coco_instances('asparagus_val_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
 
-    # for previous config
-    # register_coco_instances('asparagus_val', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230803_test_medium/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
-    # register_coco_instances('asparagus_val', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230803_test_small_v2/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    # full data
+    register_coco_instances('asparagus_train_full_1920', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_1920_1080_full/instances_train2017.json", "/home/rayhuang/Asparagus_Dataset")
+    register_coco_instances('asparagus_val_full_1920', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_1920_1080_full/instances_val2017.json", "/home/rayhuang/Asparagus_Dataset")
 
 
 def main(args):

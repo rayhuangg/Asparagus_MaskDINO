@@ -30,7 +30,7 @@ from predictor import VisualizationDemo
 
 
 # constants
-WINDOW_NAME = "mask2former demo"
+WINDOW_NAME = "MaskDINO demo"
 
 
 def setup_cfg(args):
@@ -97,18 +97,25 @@ def test_opencv_video_format(codec, file_ext):
             return True
         return False
 
-
-if __name__ == "__main__":
-    #========= Register the dataset =========
-    # leave the register part to make sure predict image have the label name.
+def register_my_dataset():
+    #========= Register COCO dataset =========
+    metadata = {"thing_classes": ["stalk", "spear"],
+                "thing_colors": [(41,245,0), (200,6,6)]}
     # small test
-    register_coco_instances('asparagus_train_full', {"thing_classes": ["stalk", "spear"], "thing_colors": [(41,245,0),(200,6,6)]}, "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
-    register_coco_instances('asparagus_val_full', {"thing_classes": ["stalk", "spear"], "thing_colors": [(41,245,0),(200,6,6)]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    # register_coco_instances('asparagus_train_small', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "home/rayhuang/Asparagus_Dataset")
+    # register_coco_instances('asparagus_val_small', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
 
     # full data
-    # register_coco_instances('asparagus_train', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
-    # register_coco_instances('asparagus_val', {"thing_classes": ["stalk", "spear"]} , "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "/home/rayhuang/MaskDINO/datasets/Asparagus_Dataset")
+    # register_coco_instances('asparagus_train_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "home/rayhuang/Asparagus_Dataset")
+    # register_coco_instances('asparagus_val_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
 
+    # full data
+    register_coco_instances('asparagus_train_full_1920', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_1920_1080_full/instances_train2017.json", "/home/rayhuang/Asparagus_Dataset")
+    register_coco_instances('asparagus_val_full_1920', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_1920_1080_full/instances_val2017.json", "/home/rayhuang/Asparagus_Dataset")
+
+
+if __name__ == "__main__":
+    register_my_dataset()
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
     setup_logger(name="fvcore")
