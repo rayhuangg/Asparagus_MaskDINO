@@ -111,7 +111,7 @@ class MaskDINO(nn.Module):
         if not self.semantic_on:
             assert self.sem_seg_postprocess_before_inference
 
-        print('criterion.weight_dict ', self.criterion.weight_dict)
+        # print('criterion.weight_dict ', self.criterion.weight_dict)
 
     @classmethod
     def from_config(cls, cfg):
@@ -486,6 +486,22 @@ class MaskDINO(nn.Module):
             mask_scores_per_image = 1.0
         result.scores = scores_per_image * mask_scores_per_image
         result.pred_classes = labels_per_image
+
+        # Only keep instances with scores > threshold
+        threshold = 0.9 # Human-defined threshold
+        instances_to_keep = mask_scores_per_image > threshold
+        scores_per_image_kept = scores_per_image[instances_to_keep]
+        labels_per_image_kept = labels_per_image[instances_to_keep]
+
+        # Create a new Instances object for the kept instances
+        result_kept = Instances(image_size)
+        result_kept.pred_masks = result.pred_masks[instances_to_keep]
+        result_kept.pred_boxes = result.pred_boxes[instances_to_keep]
+        result_kept.scores = scores_per_image_kept
+        result_kept.pred_classes = labels_per_image_kept
+
+        # print(f"{result = }")
+        # print(f"{result_kept = }")
         return result
 
     def box_postprocess(self, out_bbox, img_h, img_w):

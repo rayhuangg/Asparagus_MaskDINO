@@ -106,8 +106,8 @@ def register_my_dataset():
     # register_coco_instances('asparagus_val_small', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
 
     # full data
-    # register_coco_instances('asparagus_train_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "home/rayhuang/Asparagus_Dataset")
-    # register_coco_instances('asparagus_val_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
+    register_coco_instances('asparagus_train_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_train2017.json", "home/rayhuang/Asparagus_Dataset")
+    register_coco_instances('asparagus_val_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
 
     # full data
     register_coco_instances('asparagus_train_full_1920', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_1920_1080_full/instances_train2017.json", "/home/rayhuang/Asparagus_Dataset")
