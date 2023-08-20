@@ -459,7 +459,7 @@ class MaskDINO(nn.Module):
         labels = torch.arange(self.sem_seg_head.num_classes, device=self.device).unsqueeze(0).repeat(self.num_queries, 1).flatten(0, 1)
         scores_per_image, topk_indices = scores.flatten(0, 1).topk(self.test_topk_per_image, sorted=False)  # select 100
         labels_per_image = labels[topk_indices]
-        topk_indices = topk_indices // self.sem_seg_head.num_classes
+        topk_indices = topk_indices // self.sem_seg_head.num_classes  # num_classes = 2(spear, stalk)
         mask_pred = mask_pred[topk_indices]
         # if this is panoptic segmentation, we only keep the "thing" classes
         if self.panoptic_on:
@@ -481,28 +481,33 @@ class MaskDINO(nn.Module):
         # result.pred_boxes = BitMasks(mask_pred > 0).get_bounding_boxes()
 
         # calculate average mask prob
+        '''
+        mask_pred: 每個值表示該像素屬於一個實例的概率
+        result.pred_masks: 每個值表示該像素屬於某個特定類別（分別是物體和非物體）的機率
+        mask_scores_per_image: 每個元素表示相應預測實例的平均掩碼概率 衡量了每個預測實例的整體掩碼品質
+        scores_per_image: 模型預測每個實例的信心程度，通常基於物體的出現和特徵相關的因素
+        result.scores: 每個元素表示相應預測實例的最終綜合分數
+        '''
         mask_scores_per_image = (mask_pred.sigmoid().flatten(1) * result.pred_masks.flatten(1)).sum(1) / (result.pred_masks.flatten(1).sum(1) + 1e-6)
         if self.focus_on_box:
             mask_scores_per_image = 1.0
         result.scores = scores_per_image * mask_scores_per_image
         result.pred_classes = labels_per_image
 
+        # TODO: add threshold into cfg
         # Only keep instances with scores > threshold
-        threshold = 0.9 # Human-defined threshold
-        instances_to_keep = mask_scores_per_image > threshold
-        scores_per_image_kept = scores_per_image[instances_to_keep]
-        labels_per_image_kept = labels_per_image[instances_to_keep]
+        threshold = 0.6 # Human-defined threshold
+        high_score_indices = result.scores > threshold  # Find instance indices with scores greater than a threshold
+        filtered_result = Instances(result.image_size)
 
-        # Create a new Instances object for the kept instances
-        result_kept = Instances(image_size)
-        result_kept.pred_masks = result.pred_masks[instances_to_keep]
-        result_kept.pred_boxes = result.pred_boxes[instances_to_keep]
-        result_kept.scores = scores_per_image_kept
-        result_kept.pred_classes = labels_per_image_kept
+        # Select the corresponding result based on the high score index
+        filtered_result.pred_masks = result.pred_masks[high_score_indices]
+        filtered_result.pred_boxes = result.pred_boxes[high_score_indices]
+        filtered_result.scores = result.scores[high_score_indices]
+        filtered_result.pred_classes = result.pred_classes[high_score_indices]
 
-        # print(f"{result = }")
-        # print(f"{result_kept = }")
-        return result
+        return filtered_result
+        # return result
 
     def box_postprocess(self, out_bbox, img_h, img_w):
         # postprocess box height and width

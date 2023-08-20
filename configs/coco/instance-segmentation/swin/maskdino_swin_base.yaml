@@ -1,4 +1,17 @@
-_BASE_: ../swin/maskdino_R50_bs16_50ep_4s_dowsample1_1024.yaml
+_BASE_: maskdino_R50_bs16_50ep_4s_dowsample1_2048.yaml
+MODEL:
+  BACKBONE:
+    NAME: "D2SwinTransformer"
+  SWIN:
+    EMBED_DIM: 128
+    DEPTHS: [2, 2, 18, 2]
+    NUM_HEADS: [4, 8, 16, 32]
+    WINDOW_SIZE: 12
+    APE: False
+    DROP_PATH_RATE: 0.3
+    PATCH_NORM: True
+    PRETRAIN_IMG_SIZE: 384
+
 SOLVER:
   MAX_ITER: 150000
   STEPS: (90000, 130000)
