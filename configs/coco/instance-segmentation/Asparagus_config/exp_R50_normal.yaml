@@ -19,8 +19,8 @@ SOLVER:
   STEPS: (90000, 130000)
   CHECKPOINT_PERIOD: 5000
 DATASETS:
-  TRAIN: ("asparagus_train_full",)
-  TEST: ("asparagus_val_full",)
+  TRAIN: ("asparagus_train_full_1920",)
+  TEST: ("asparagus_val_full_1920",)
 TEST:
   EVAL_PERIOD: 5000 # default 5000
 SOLVER:

@@ -16,9 +16,11 @@ CUDA_VISIBLE_DEVICES=1 python3 train_net.py --config-file configs/coco/instance-
 tensorboard --logdir output/ --port 1026
 ```
 
-測試demo不同尺寸照片
-# datasets/Asparagus_Dataset/Adam_pseudo_label/202111_patrol/20211104_081521_.jpg 1920*1080
-# datasets/Asparagus_Dataset/Adam_pseudo_label/Justin_remain/390.jpg 3280*2464
-# datasets/Asparagus_Dataset/Adam_pseudo_label/Justin_remain/667.jpg 4032*3024
-# datasets/Asparagus_Dataset/Justin_labeled_data/162.jpg  4592*3448
-# datasets/Asparagus_Dataset/Justin_labeled_data/309.jpg  5472*3648
+### 測試demo不同尺寸照片
+```
+datasets/Asparagus_Dataset/Adam_pseudo_label/202111_patrol/20211104_081521_.jpg 1920*1080
+datasets/Asparagus_Dataset/Adam_pseudo_label/Justin_remain/390.jpg 3280*2464
+datasets/Asparagus_Dataset/Adam_pseudo_label/Justin_remain/667.jpg 4032*3024
+datasets/Asparagus_Dataset/Justin_labeled_data/162.jpg  4592*3448
+datasets/Asparagus_Dataset/Justin_labeled_data/309.jpg  5472*3648
+``````

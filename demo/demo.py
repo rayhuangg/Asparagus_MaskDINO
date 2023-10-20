@@ -17,6 +17,7 @@ import warnings
 import cv2
 import numpy as np
 import tqdm
+import csv
 
 from detectron2.config import get_cfg
 from detectron2.data.detection_utils import read_image
@@ -79,6 +80,12 @@ def get_parser():
         default=[],
         nargs=argparse.REMAINDER,
     )
+    parser.add_argument(
+        "--csv_out",
+        action='store_true',
+        default=False,
+        help="Determine whether to export the stalk count csv file",
+    )
     return parser
 
 
@@ -121,8 +128,11 @@ if __name__ == "__main__":
         for path in tqdm.tqdm(args.input, disable=not args.output):
             # use PIL, to be consistent with evaluation
             img = read_image(path, format="BGR")
+            filename = path.split("/")[-1][:-4]
             start_time = time.time()
             predictions, visualized_output = demo.run_on_image(img)
+            pred_classes_list = predictions['instances'].pred_classes.tolist()
+            count_of_stalk = pred_classes_list.count(0)
             logger.info(
                 "{}: {} in {:.2f}s".format(
                     path,
@@ -132,6 +142,13 @@ if __name__ == "__main__":
                     time.time() - start_time,
                 )
             )
+
+            if args.csv_out is True:
+                with open('stalk_count.csv', 'a', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    if os.stat('stalk_count.csv').st_size == 0:  # Check if the file is empty
+                        writer.writerow(["filename", "count_of_stalk"])  # Add headers only if the file is empty
+                    writer.writerow([filename, count_of_stalk])
 
             if args.output:
                 if os.path.isdir(args.output):

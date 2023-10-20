@@ -55,3 +55,4 @@ _darcs
 train.sh
 val.sh
 demo/demo.sh
+stalk_count*
