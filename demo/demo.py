@@ -15,9 +15,17 @@ import time
 import warnings
 
 import cv2
+import csv
+import tqdm
+import pickle
+import base64
+import json
 import numpy as np
 import tqdm
 import csv
+from PIL import Image
+from skimage import measure, morphology
+from pycocotools import mask
 
 from detectron2.config import get_cfg
 from detectron2.data.detection_utils import read_image
@@ -67,7 +75,10 @@ def get_parser():
         help="A file or directory to save output visualizations. "
         "If not given, will show output in an OpenCV window.",
     )
-
+    parser.add_argument(
+        "--json_output",
+        help="Directory for json result output."
+        )
     parser.add_argument(
         "--confidence-threshold",
         type=float,
@@ -106,6 +117,104 @@ def test_opencv_video_format(codec, file_ext):
         return False
 
 
+def json_output(output, predictions, filename, path):
+    '''
+    Save predictions as json file
+    '''
+    out_filename = os.path.join(output, filename) + '.json'
+    with open(path, 'rb') as img_file:
+        img_data = base64.b64encode(img_file.read()).decode("utf-8")
+    labels = {0: 'stalk' , 1: 'spear'}
+    image_height, image_width = predictions['instances'].image_size
+    # pred_boxes = np.asarray(predictions["instances"].pred_boxes)
+    scores = predictions['instances'].scores.cpu().numpy()
+    pred_classes = predictions['instances'].pred_classes.cpu().numpy()
+    pred_masks = predictions["instances"].pred_masks.cpu().numpy()
+
+    content = {
+    "version": "4.5.5",
+    "flags": {},
+    "shapes": [
+    ],
+    "imagePath": filename,
+    "imageData": img_data,
+    "imageHeight": image_height,
+    "imageWidth": image_width
+    }
+
+    for i in range(len(pred_classes)):
+#        if pred_classes[i] == 1:
+#            bbox = pred_boxes[i].cpu().numpy().tolist()
+#            shape ={
+#            "label": "clump",
+#            "points": [[bbox[0], bbox[1]], [bbox[2], bbox[3]]],
+#            "group_id": i,
+#            "shape_type": "rectangle",
+#            "flags": {}
+#            }
+#            content["shapes"].append(shape)
+#        else:
+        segmentation = pred_masks[i]
+        segmentation = measure.find_contours(segmentation.T, 0.5)
+        for seg in segmentation:
+            new_seg = []
+            if len(seg) > 30:
+                for k in range(0, len(seg), int(len(seg)/30)):
+                    new_seg.append(seg[k].tolist())
+            else:
+                new_seg = [s.tolist() for s in seg]
+            shape = {
+            "label": labels[pred_classes[i]],
+            "points": new_seg,
+            "group_id": i,
+            "shape_type": "polygon",
+            "flags": {}
+            }
+            content["shapes"].append(shape)
+    with open(out_filename, 'w+') as jsonfile:
+        json.dump(content, jsonfile, indent=2)
+        print(f"Success output {out_filename}.")
+
+
+def mask2skeleton(pred_mask):
+    """
+    Convert pred_masek into skeleton.
+
+    Parameters:
+        pred_mask(list): 2d list of boolean, Fasle for bg, True for fg.
+
+    Returns:
+        skeleton(list): 2d list of 0 and 1, o for bg, 1 for skeleton
+    """
+    pred_mask = np.asarray(pred_mask) + 0
+    skeleton = morphology.skeletonize(pred_mask)
+    return skeleton
+
+
+def csv_out(predictions, filename, path):
+    labels = {1: 'clump', 2: 'stalk' , 3: 'spear'}
+    image_height, image_width = predictions['instances'].image_size
+    pred_boxes = np.asarray(predictions["instances"].pred_boxes)
+    scores = predictions['instances'].scores.cpu().numpy()
+    pred_classes = predictions['instances'].pred_classes.cpu().numpy()
+    pred_masks = predictions["instances"].pred_masks.cpu().numpy()
+    table = []
+    for i in range(len(pred_classes)):
+        if pred_classes[i] == 3:
+            boxs = pred_boxes[i].cpu().numpy().tolist()
+            skeleton = mask2skeleton(pred_masks[i]).tolist()
+            length_skeleton = np.count_nonzero(skeleton)
+            length_box = boxs[3] - boxs[1]
+            table.append([i, boxs[0], boxs[1], boxs[2], boxs[3], mask.encode(np.asfortranarray(pred_masks[i])), length_skeleton, length_box])
+    table = sorted(table, key = lambda x: x[1])
+    for i in range(len(table)):
+        table[i][0] = i
+    table = [['id', 'box(xmin)', 'box(ymin)', 'box(xmax)', 'box(ymax)', 'mask', 'length(skeleton)', 'length(box)']] + table
+    with open(os.path.join(path, filename) + '.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(table)
+
+
 if __name__ == "__main__":
     register_my_dataset()
     mp.set_start_method("spawn", force=True)
@@ -133,6 +242,7 @@ if __name__ == "__main__":
             predictions, visualized_output = demo.run_on_image(img)
             pred_classes_list = predictions['instances'].pred_classes.tolist()
             count_of_stalk = pred_classes_list.count(0)
+            filename = path.split('/')[-1][:-4]
             logger.info(
                 "{}: {} in {:.2f}s".format(
                     path,
@@ -152,17 +262,25 @@ if __name__ == "__main__":
 
             if args.output:
                 if os.path.isdir(args.output):
-                    assert os.path.isdir(args.output), args.output
+                    # assert os.path.isdir(args.output), args.output
                     out_filename = os.path.join(args.output, os.path.basename(path))
                 else:
-                    assert len(args.input) == 1, "Please specify a directory with args.output"
-                    out_filename = args.output
+                    # assert len(args.input) == 1, "Please specify a directory with args.output"
+                    os.makedirs(args.output)
+                    out_filename = os.path.join(args.output, os.path.basename(path))
                 visualized_output.save(out_filename)
             else:
                 cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
                 cv2.imshow(WINDOW_NAME, visualized_output.get_image()[:, :, ::-1])
                 if cv2.waitKey(0) == 27:
                     break  # esc to quit
+
+            if args.json_output:
+                if not os.path.isdir(args.json_output):
+                    os.makedirs(args.json_output)
+                json_folder = args.json_output
+                json_output(json_folder, predictions, filename, path)
+
     elif args.webcam:
         assert args.input is None, "Cannot have both --input and --webcam!"
         assert args.output is None, "output not yet supported with --webcam!"
