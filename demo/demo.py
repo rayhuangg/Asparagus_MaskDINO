@@ -158,25 +158,32 @@ def json_output(output, predictions, filename, path):
 #            content["shapes"].append(shape)
 #        else:
         segmentation = pred_masks[i]
-        segmentation = measure.find_contours(segmentation.T, 0.5)
-        for seg in segmentation:
-            new_seg = []
+        seg_contours = measure.find_contours(segmentation.T, 0.5)
+
+        for seg in seg_contours:
             if len(seg) > 30:
-                for k in range(0, len(seg), int(len(seg)/30)):
-                    new_seg.append(seg[k].tolist())
+                sampled_seg = [seg[k].tolist() for k in range(0, len(seg), int(len(seg) / 30))]
             else:
-                new_seg = [s.tolist() for s in seg]
+                sampled_seg = [s.tolist() for s in seg]
+
+            # count the area of segment to prevent too small instance
+            if pred_classes[i] == 0: # stalk
+                seg_area = measure.moments(seg)[0, 0]
+                area_threshold = 800000 # Simple test decision, normal stalk is larger than 1000000
+                if seg_area < area_threshold:
+                    continue
+
             shape = {
-            "label": labels[pred_classes[i]],
-            "points": new_seg,
-            "group_id": i,
-            "shape_type": "polygon",
-            "flags": {}
+                "label": labels[pred_classes[i]],
+                "points": sampled_seg,
+                "group_id": i,
+                "shape_type": "polygon",
+                "flags": {}
             }
             content["shapes"].append(shape)
+
     with open(out_filename, 'w+') as jsonfile:
         json.dump(content, jsonfile, indent=2)
-        print(f"Success output {out_filename}.")
 
 
 def mask2skeleton(pred_mask):
