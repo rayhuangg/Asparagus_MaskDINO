@@ -36,7 +36,7 @@ from detectron2.data.datasets import register_coco_instances
 
 from maskdino import add_maskdino_config
 from predictor import VisualizationDemo
-from register_dataset import register_my_dataset
+from register_dataset import register_my_datasets
 
 
 # constants
@@ -124,7 +124,10 @@ def json_output(output, predictions, filename, path):
     out_filename = os.path.join(output, filename) + '.json'
     with open(path, 'rb') as img_file:
         img_data = base64.b64encode(img_file.read()).decode("utf-8")
-    labels = {0: 'stalk' , 1: 'spear'}
+    labels = {0: 'stalk',
+              1: 'spear',
+              2: 'bar',
+              3: 'straw'}
     image_height, image_width = predictions['instances'].image_size
     # pred_boxes = np.asarray(predictions["instances"].pred_boxes)
     scores = predictions['instances'].scores.cpu().numpy()
@@ -134,8 +137,7 @@ def json_output(output, predictions, filename, path):
     content = {
     "version": "4.5.5",
     "flags": {},
-    "shapes": [
-    ],
+    "shapes": [],
     "imagePath": filename,
     "imageData": img_data,
     "imageHeight": image_height,
@@ -143,6 +145,7 @@ def json_output(output, predictions, filename, path):
     }
 
     for i in range(len(pred_classes)):
+        # clump type
 #        if pred_classes[i] == 1:
 #            bbox = pred_boxes[i].cpu().numpy().tolist()
 #            shape ={
@@ -191,6 +194,7 @@ def mask2skeleton(pred_mask):
     return skeleton
 
 
+# Justin ver.
 def csv_out(predictions, filename, path):
     labels = {1: 'clump', 2: 'stalk' , 3: 'spear'}
     image_height, image_width = predictions['instances'].image_size
@@ -216,7 +220,7 @@ def csv_out(predictions, filename, path):
 
 
 if __name__ == "__main__":
-    register_my_dataset()
+    register_my_datasets()
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
     setup_logger(name="fvcore")

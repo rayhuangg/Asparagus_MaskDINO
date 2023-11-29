@@ -66,7 +66,7 @@ from detectron2.engine import (
     SimpleTrainer
 )
 import weakref
-from register_dataset import register_my_dataset
+from register_dataset import register_my_datasets
 
 
 class Trainer(DefaultTrainer):
@@ -352,7 +352,7 @@ def setup(args):
 
 
 def main(args):
-    register_my_dataset()
+    register_my_datasets()
     cfg = setup(args)
     # print("Command cfg:", cfg)
     if args.eval_only:

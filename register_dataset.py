@@ -1,24 +1,28 @@
 from detectron2.data.datasets import register_coco_instances
 
-def register_my_dataset():
-    #========= Register COCO dataset =========
-    metadata = {"thing_classes": ["stalk", "spear"],
-                "thing_colors": [(41,245,0), (200,6,6)]}
+def register_dataset(name, metadata, dataset_folder):
+    json_path = f"/home/rayhuang/Asparagus_Dataset/COCO_Format/{dataset_folder}"
+    dataset_path = "/home/rayhuang/Asparagus_Dataset"
+
+    register_coco_instances(name + '_train', metadata, f"{json_path}/instances_train2017.json", dataset_path)
+    register_coco_instances(name + '_val', metadata, f"{json_path}/instances_val2017.json", dataset_path)
+
+def register_my_datasets():
+    metadata_2classes = {"thing_classes": ["stalk", "spear"],
+                         "thing_colors": [(41, 245, 0), (200, 6, 6)]}
     metadata_4classes = {"thing_classes": ["stalk", "spear", "bar", "straw"],
-                "thing_colors": [(41,245,0), (200,6,6), (230,217,51), (71,152,179)]}
-    # small test
-    # register_coco_instances('asparagus_train_small', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230721_test/instances_train2017.json", "home/rayhuang/Asparagus_Dataset")
-    # register_coco_instances('asparagus_val_small', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230721_test/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
+                         "thing_colors": [(41, 245, 0), (200, 6, 6), (230, 217, 51), (71, 152, 179)]}
+
+    # small amount test
+    register_dataset('asparagus_small', metadata_2classes, "20230803_test_small_dataset")
 
     # full data
-    register_coco_instances('asparagus_train_full_1920', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_Adam_1920/instances_train2017.json", "/home/rayhuang/Asparagus_Dataset")
-    # register_coco_instances('asparagus_val_full_1920', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_Adam_1920/instances_val2017.json", "/home/rayhuang/Asparagus_Dataset")
-    # register_coco_instances('asparagus_val_full', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_Adam_1920/instances_val2017.json", "home/rayhuang/Asparagus_Dataset")
-    register_coco_instances('asparagus_val_full_1920', metadata, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_Adam_1920/instances_val2017.json", "/home/rayhuang/Asparagus_Dataset")
-
-    # adam "raw" dataset (the method hi register dataset)
-    # register_coco_instances('asparagus_val', {'_background_': 0, 'stalk': 1, 'spear': 2}, "/home/rayhuang/Asparagus_Dataset/val/annotations.json", "/home/rayhuang/Asparagus_Dataset/val")
+    register_dataset('asparagus_full_1920', metadata_2classes, "20230817_Adam_1920")
+    register_coco_instances('asparagus_val_full', metadata_2classes, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230627_Adam_ver/instances_val2017.json", "/home/rayhuang/Asparagus_Dataset/")
+    register_coco_instances('asparagus_val_full_1920', metadata_2classes, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20230817_Adam_1920/instances_val2017.json", "/home/rayhuang/Asparagus_Dataset/")
 
     # webserver used (with stalk, spear, straw, bar)
-    register_coco_instances('asparagus_train_webserver', metadata_4classes, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20231018_dataset_with_straw_bar/instances_train2017.json", "/home/rayhuang/Asparagus_Dataset")
-    register_coco_instances('asparagus_val_webserver', metadata_4classes, "/home/rayhuang/Asparagus_Dataset/COCO_Format/20231018_dataset_with_straw_bar/instances_val2017.json", "/home/rayhuang/Asparagus_Dataset")
+    register_dataset('asparagus_webserver', metadata_4classes, "20231018_dataset_with_straw_bar")
+
+    # adam "raw" dataset (the method Adam register(not sure metadata is useful or not))
+    # register_coco_instances('asparagus_val', {'_background_': 0, 'stalk': 1, 'spear': 2}, "/home/rayhuang/Asparagus_Dataset/val/annotations.json", "/home/rayhuang/Asparagus_Dataset/val")
