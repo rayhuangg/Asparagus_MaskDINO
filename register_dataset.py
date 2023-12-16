@@ -1,11 +1,14 @@
+import os
 from detectron2.data.datasets import register_coco_instances
 
-def register_dataset(name, metadata, dataset_folder):
-    json_path = f"/home/rayhuang/Asparagus_Dataset/COCO_Format/{dataset_folder}"
+def register_dataset(d2_dataset_name, metadata, raw_folder):
+    json_path = f"/home/rayhuang/Asparagus_Dataset/COCO_Format/{raw_folder}"
     dataset_path = "/home/rayhuang/Asparagus_Dataset"
 
-    register_coco_instances(name + '_train', metadata, f"{json_path}/instances_train2017.json", dataset_path)
-    register_coco_instances(name + '_val', metadata, f"{json_path}/instances_val2017.json", dataset_path)
+    if os.path.exists(f"{json_path}/instances_train2017.json"):
+        register_coco_instances(f"{d2_dataset_name}_train", metadata, f"{json_path}/instances_train2017.json", dataset_path)
+    if os.path.exists(f"{json_path}/instances_val2017.json"):
+        register_coco_instances(f"{d2_dataset_name}_val", metadata, f"{json_path}/instances_val2017.json", dataset_path)
 
 def register_my_datasets():
     metadata_2classes = {"thing_classes": ["stalk", "spear"],
@@ -26,3 +29,6 @@ def register_my_datasets():
 
     # adam "raw" dataset (the method Adam register(not sure metadata is useful or not))
     # register_coco_instances('asparagus_val', {'_background_': 0, 'stalk': 1, 'spear': 2}, "/home/rayhuang/Asparagus_Dataset/val/annotations.json", "/home/rayhuang/Asparagus_Dataset/val")
+
+    # Test used
+    register_dataset("20231213test", metadata_2classes, "20231213_test")
