@@ -27,7 +27,9 @@ import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 # fmt: on
 
-from mask2former import add_maskformer2_config
+from maskdino import add_maskdino_config
+from register_dataset import register_my_datasets
+
 
 logger = logging.getLogger("detectron2")
 
@@ -36,7 +38,8 @@ def setup(args):
     if args.config_file.endswith(".yaml"):
         cfg = get_cfg()
         add_deeplab_config(cfg)
-        add_maskformer2_config(cfg)
+        # add_maskformer2_config(cfg)
+        add_maskdino_config(cfg)
         cfg.merge_from_file(args.config_file)
         cfg.DATALOADER.NUM_WORKERS = 0
         cfg.merge_from_list(args.opts)
@@ -167,6 +170,7 @@ $ ./analyze_model.py --num-inputs 100 --tasks flop \\
     assert args.num_gpus == 1
 
     cfg = setup(args)
+    register_my_datasets()
 
     for task in args.tasks:
         {
