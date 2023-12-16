@@ -12,17 +12,17 @@
 
 
 # Modify this line to decide input folder.
-input_path='/home/rayhuang/photo_demo_used/1129_label_threshold/'
+input_path='/home/rayhuang/photo_demo_used/Pseudo/'
 
 # Define an array of dates in the format YYYYMMDD
-dates=($(find "${input_path}" -maxdepth 1 -type d -exec basename {} \; | grep -v "Pseudo_label" | sort))
+dates=($(find "${input_path}" -maxdepth 1 -type d -exec basename {} \; | grep -v "Pseudo" | sort))
 echo "Dates variable contains: ${dates[@]}"
 
 # Loop through each date
 for date in "${dates[@]}"; do
     # Set the output folder based on the date
-    output_path="/home/rayhuang/photo_demo_used/1129_label_threshold/${date}/predict/"
-    json_output_path="/home/rayhuang/photo_demo_used/1129_label_threshold/${date}/"
+    output_path="/home/rayhuang/photo_demo_used/Pseudo/${date}/predict/"
+    json_output_path="/home/rayhuang/photo_demo_used/Pseudo/${date}/"
 
     CUDA_VISIBLE_DEVICES=1 python3 demo.py \
         --input "${input_path}${date}/*.jpg" \

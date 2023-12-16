@@ -145,18 +145,18 @@ def json_output(output, predictions, filename, path):
     }
 
     for i in range(len(pred_classes)):
-        # clump type
-#        if pred_classes[i] == 1:
-#            bbox = pred_boxes[i].cpu().numpy().tolist()
-#            shape ={
-#            "label": "clump",
-#            "points": [[bbox[0], bbox[1]], [bbox[2], bbox[3]]],
-#            "group_id": i,
-#            "shape_type": "rectangle",
-#            "flags": {}
-#            }
-#            content["shapes"].append(shape)
-#        else:
+        # # clump type
+        # if pred_classes[i] == 1:
+        #     bbox = pred_boxes[i].cpu().numpy().tolist()
+        #     shape ={
+        #     "label": "clump",
+        #     "points": [[bbox[0], bbox[1]], [bbox[2], bbox[3]]],
+        #     "group_id": i,
+        #     "shape_type": "rectangle",
+        #     "flags": {}
+        #     }
+        #     content["shapes"].append(shape)
+        # else:
         segmentation = pred_masks[i]
         seg_contours = measure.find_contours(segmentation.T, 0.5)
 
