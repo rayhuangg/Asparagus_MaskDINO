@@ -67,7 +67,99 @@ from detectron2.engine import (
 )
 import weakref
 from register_dataset import register_my_datasets
+from torch.utils.tensorboard import SummaryWriter
+from detectron2.utils.events import EventWriter, get_event_storage
+from detectron2.utils.events import CommonMetricPrinter, JSONWriter
+from detectron2.data.build import build_detection_test_loader
+from detectron2.engine import HookBase, PeriodicWriter
+import detectron2.utils.comm as comm
 
+
+class CustomTensorboardXWriter(EventWriter):
+    """
+    Writes scalars and images based on storage key to train or val tensorboard file.
+    Copy From gitHub: https://github.com/facebookresearch/detectron2/issues/810
+    """
+
+    def __init__(self, log_dir: str, window_size: int = 20, **kwargs):
+        """
+        Args:
+            log_dir (str): the base directory to save the output events. This class creates two subdirs in log_dir
+            window_size (int): the scalars will be median-smoothed by this window size
+
+            kwargs: other arguments passed to `torch.utils.tensorboard.SummaryWriter(...)`
+        """
+        self._window_size = window_size
+
+        # separate the writers into a train and a val writer
+        train_writer_path = os.path.join(log_dir,"train")
+        os.makedirs(train_writer_path, exist_ok=True)
+        self._writer_train = SummaryWriter(train_writer_path, **kwargs)
+
+        val_writer_path = os.path.join(log_dir,"val")
+        os.makedirs(val_writer_path, exist_ok=True)
+        self._writer_val = SummaryWriter(val_writer_path, **kwargs)
+
+    def write(self):
+
+        storage = get_event_storage()
+        for k, (v, iter) in storage.latest_with_smoothing_hint(self._window_size).items():
+            if k.startswith("val_"):
+                k = k.replace("val_","")
+                self._writer_val.add_scalar(k, v, iter)
+            else:
+                self._writer_train.add_scalar(k, v, iter)
+
+        if len(storage._vis_data) >= 1:
+            for img_name, img, step_num in storage._vis_data:
+                if k.startswith("val_"):
+                    k = k.replace("val_","")
+                    self._writer_val.add_image(img_name, img, step_num)
+                else:
+                    self._writer_train.add_image(img_name, img, step_num)
+            # Storage stores all image data and rely on this writer to clear them.
+            # As a result it assumes only one writer will use its image data.
+            # An alternative design is to let storage store limited recent
+            # data (e.g. only the most recent image) that all writers can access.
+            # In that case a writer may not see all image data if its period is long.
+            storage.clear_images()
+
+        if len(storage._histograms) >= 1:
+            for params in storage._histograms:
+                self._writer_train.add_histogram_raw(**params)
+            storage.clear_histograms()
+
+    def close(self):
+        if hasattr(self, "_writer"):  # doesn't exist when the code fails at import
+            self._writer_train.close()
+            self._writer_val.close()
+
+class ValLossHook(HookBase):
+
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg.clone()
+        # self._loader = iter(build_detection_test_loader(self.cfg, "my_dataset_val"))
+        self._loader = iter(build_detection_test_loader(self.cfg, self.cfg.DATASETS.TEST, mapper=COCOInstanceNewBaselineDatasetMapper(self.cfg, is_train=True)))
+
+    def after_step(self):
+        """
+            After each step calculates the validation loss and adds it to the train storage
+        """
+
+        data = next(self._loader)
+        # print(type(self._loader), len(self._loader)) # just for debugging
+
+        with torch.no_grad():
+            loss_dict = self.trainer.model(data)
+
+            losses = sum(loss_dict.values())
+            assert torch.isfinite(losses).all(), loss_dict
+
+            loss_dict_reduced = {"val_" + k: v.item() for k, v in comm.reduce_dict(loss_dict).items()}
+            losses_reduced = sum(loss for loss in loss_dict_reduced.values())
+            if comm.is_main_process():
+                self.trainer.storage.put_scalars(val_total_loss=losses_reduced,**loss_dict_reduced)
 
 class Trainer(DefaultTrainer):
     """
@@ -327,6 +419,20 @@ class Trainer(DefaultTrainer):
         return res
 
 
+    def build_writers(self):
+        """
+        Overwrites the default writers to contain our custom tensorboard writer
+
+        Returns:
+            list[EventWriter]: a list of :class:`EventWriter` objects.
+        """
+        return [
+            CommonMetricPrinter(self.max_iter),
+            JSONWriter(os.path.join(self.cfg.OUTPUT_DIR, "metrics.json")),
+            CustomTensorboardXWriter(self.cfg.OUTPUT_DIR),
+        ]
+
+
 def setup(args):
     """
     Create configs and perform basic setups.
@@ -354,7 +460,6 @@ def setup(args):
 def main(args):
     register_my_datasets()
     cfg = setup(args)
-    # print("Command cfg:", cfg)
     if args.eval_only:
         model = Trainer.build_model(cfg)
         DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).resume_or_load(
@@ -372,6 +477,17 @@ def main(args):
         return res
 
     trainer = Trainer(cfg)
+
+    # creates a hook that after each iter calculates the validation loss on the next batch
+    # Register the hoooks
+    trainer.register_hooks([ValLossHook(cfg)])
+
+    # The PeriodicWriter needs to be the last hook, otherwise it wont have access to valloss metrics
+    # Ensure PeriodicWriter is the last called hook
+    periodic_writer_hook = [hook for hook in trainer._hooks if isinstance(hook, PeriodicWriter)]
+    all_other_hooks = [hook for hook in trainer._hooks if not isinstance(hook, PeriodicWriter)]
+    trainer._hooks = all_other_hooks + periodic_writer_hook
+
     trainer.resume_or_load(resume=args.resume)
     return trainer.train()
 
