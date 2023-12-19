@@ -31,4 +31,4 @@ def register_my_datasets():
     # register_coco_instances('asparagus_val', {'_background_': 0, 'stalk': 1, 'spear': 2}, "/home/rayhuang/Asparagus_Dataset/val/annotations.json", "/home/rayhuang/Asparagus_Dataset/val")
 
     # Test used
-    register_dataset("20231213test", metadata_2classes, "20231213_test")
+    register_dataset("20231213_ValidationSet_0point1", metadata_2classes, "20231213_ValidationSet_0point1")

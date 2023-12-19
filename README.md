@@ -31,3 +31,9 @@ datasets/Asparagus_Dataset/Adam_pseudo_label/Justin_remain/667.jpg 4032*3024
 datasets/Asparagus_Dataset/Justin_labeled_data/162.jpg  4592*3448
 datasets/Asparagus_Dataset/Justin_labeled_data/309.jpg  5472*3648
 ``````
+
+
+即時更新nvidia-smi，-n 1設定更新頻率(秒)
+```bash
+watch -n 1 -d  nvidia-smi
+```

@@ -354,7 +354,6 @@ def setup(args):
 def main(args):
     register_my_datasets()
     cfg = setup(args)
-    # print("Command cfg:", cfg)
     if args.eval_only:
         model = Trainer.build_model(cfg)
         DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).resume_or_load(
