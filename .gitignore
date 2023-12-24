@@ -56,3 +56,5 @@ train.sh
 val.sh
 demo/demo.sh
 stalk_count*
+output*
+train_history.txt

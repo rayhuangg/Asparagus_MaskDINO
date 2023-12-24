@@ -381,7 +381,8 @@ if __name__ == "__main__":
     parser.add_argument('--EVAL_FLAG', type=int, default=1)
     args = parser.parse_args()
     # random port
-    port = random.randint(1000, 20000)
+    # port = random.randint(1000, 20000)
+    port = 7777
     args.dist_url = 'tcp://127.0.0.1:' + str(port)
     print("Command Line Args:", args)
     print("pwd:", os.getcwd())
