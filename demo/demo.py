@@ -97,6 +97,12 @@ def get_parser():
         default=False,
         help="Determine whether to export the stalk count csv file",
     )
+    parser.add_argument(
+        "--output-filename",
+        default=None,
+        type=str,
+        help="Determine the output extension filename",
+    )
     return parser
 
 
@@ -274,11 +280,19 @@ if __name__ == "__main__":
             if args.output:
                 if os.path.isdir(args.output):
                     # assert os.path.isdir(args.output), args.output
-                    out_filename = os.path.join(args.output, os.path.basename(path))
+                    if args.output_filename is not None:
+                        base_name = os.path.splitext(os.path.basename(path))[0]  # Get the name of the file that does not include the expansion name
+                        out_filename = os.path.join(args.output, f"{base_name}{args.output_filename}.jpg")
+                    else:
+                        out_filename = os.path.join(args.output, os.path.basename(path))
                 else:
                     # assert len(args.input) == 1, "Please specify a directory with args.output"
                     os.makedirs(args.output)
-                    out_filename = os.path.join(args.output, os.path.basename(path))
+                    if args.output_filename is not None:
+                        base_name = os.path.splitext(os.path.basename(path))[0]  # Get the name of the file that does not include the expansion name
+                        out_filename = os.path.join(args.output, f"{base_name}{args.output_filename}.jpg")
+                    else:
+                        out_filename = os.path.join(args.output, os.path.basename(path))
                 visualized_output.save(out_filename)
             else:
                 cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
