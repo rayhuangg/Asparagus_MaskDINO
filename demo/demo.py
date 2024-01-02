@@ -103,6 +103,11 @@ def get_parser():
         type=str,
         help="Determine the output extension filename",
     )
+    parser.add_argument(
+        "--not_draw_bbox",
+        action="store_true",
+        help="Determine whether the demo output need to draw the bbox box.",
+    )
     return parser
 
 
@@ -256,7 +261,8 @@ if __name__ == "__main__":
             img = read_image(path, format="BGR")
             filename = path.split("/")[-1][:-4]
             start_time = time.time()
-            predictions, visualized_output = demo.run_on_image(img)
+            print("******", args.not_draw_bbox)
+            predictions, visualized_output = demo.run_on_image(img, args.not_draw_bbox)
             pred_classes_list = predictions['instances'].pred_classes.tolist()
             count_of_stalk = pred_classes_list.count(0)
             filename = path.split('/')[-1][:-4]
