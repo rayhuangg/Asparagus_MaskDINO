@@ -16,11 +16,11 @@ MODEL:
       SEM_SEG_POSTPROCESSING_BEFORE_INFERENCE: true
 SOLVER:
   MAX_ITER: 150000
-  STEPS: (50000, 90000, 130000)
+  STEPS: (50000, 90000, 110000)
   CHECKPOINT_PERIOD: 5000
 DATASETS:
-  TRAIN: ("asparagus_full_1920_train",)
-  TEST: ("asparagus_full_1920_val",)
+  TRAIN: ("20231213_ValidationSet_0point1_train",)
+  TEST: ("20231213_ValidationSet_0point1_val",)
 TEST:
   EVAL_PERIOD: 5000 # default 5000
 SEED: 11631026

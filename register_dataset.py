@@ -1,8 +1,8 @@
 import os
 from detectron2.data.datasets import register_coco_instances
 
-def register_dataset(d2_dataset_name, metadata, raw_folder):
-    json_path = f"/home/rayhuang/Asparagus_Dataset/COCO_Format/{raw_folder}"
+def register_dataset(d2_dataset_name, metadata, raw_folder_name):
+    json_path = f"/home/rayhuang/Asparagus_Dataset/COCO_Format/{raw_folder_name}"
     dataset_path = "/home/rayhuang/Asparagus_Dataset"
 
     if os.path.exists(f"{json_path}/instances_train2017.json"):
@@ -32,3 +32,4 @@ def register_my_datasets():
 
     # Test used
     register_dataset("20231213_ValidationSet_0point1", metadata_2classes, "20231213_ValidationSet_0point1")
+    register_dataset("JoanAllData", metadata_2classes, "20240129_WithJoanAllData")

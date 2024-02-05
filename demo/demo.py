@@ -26,6 +26,7 @@ import csv
 from PIL import Image
 from skimage import measure, morphology
 from pycocotools import mask
+import matplotlib.pyplot as plt
 
 from detectron2.config import get_cfg
 from detectron2.data.detection_utils import read_image
@@ -168,21 +169,40 @@ def json_output(output, predictions, filename, path):
         #     }
         #     content["shapes"].append(shape)
         # else:
+
         segmentation = pred_masks[i]
+        # plt.imsave(f"/home/rayhuang/photo_demo_used/segment_mask/segmentation_{i}.jpg", segmentation)
+        kernel = np.ones((5, 5), np.uint8)
+        segmentation = cv2.dilate(segmentation, kernel, iterations=2)
+        segmentation = cv2.erode(segmentation, kernel, iterations=2)
+
+        # Add edge padding around the image to prevent the mask from sticking to the edge and causing separate recognition.
+        padding_size = 10
+        segmentation = cv2.copyMakeBorder(segmentation, padding_size, padding_size, padding_size, padding_size, cv2.BORDER_CONSTANT, value=0)
         seg_contours = measure.find_contours(segmentation.T, 0.5)
+        # if i == 13:
+            # print(seg_contours)
+        print(f"{len(seg_contours) = }")
+
 
         for seg in seg_contours:
+            # Compensation coordinates
+            seg[:, 0] -= padding_size
+            seg[:, 1] -= padding_size
+
+            # down sample
             if len(seg) > 30:
                 sampled_seg = [seg[k].tolist() for k in range(0, len(seg), int(len(seg) / 30))]
             else:
                 sampled_seg = [s.tolist() for s in seg]
 
-            # count the area of segment to prevent too small instance
+            # Filter small instances
             if pred_classes[i] == 0: # stalk
                 seg_area = measure.moments(seg)[0, 0]
                 area_threshold = 800000 # Simple test decision, normal stalk is larger than 1000000
                 if seg_area < area_threshold:
-                    continue
+                    continue # skip this segment
+
 
             shape = {
                 "label": labels[pred_classes[i]],
@@ -261,7 +281,6 @@ if __name__ == "__main__":
             img = read_image(path, format="BGR")
             filename = path.split("/")[-1][:-4]
             start_time = time.time()
-            print("******", args.not_draw_bbox)
             predictions, visualized_output = demo.run_on_image(img, args.not_draw_bbox)
             pred_classes_list = predictions['instances'].pred_classes.tolist()
             count_of_stalk = pred_classes_list.count(0)
@@ -306,6 +325,7 @@ if __name__ == "__main__":
                 if cv2.waitKey(0) == 27:
                     break  # esc to quit
 
+            # Generate the pseudo label of input image
             if args.json_output:
                 if not os.path.isdir(args.json_output):
                     os.makedirs(args.json_output)

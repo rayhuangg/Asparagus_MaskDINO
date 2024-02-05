@@ -76,12 +76,10 @@ class VisualizationDemo(object):
                 #         else:
                 #             instances_ = Instances.cat([instances_, instances[index]])
 
+                # User select whether remove the bbox information
                 if not_draw_bbox:
-                    # Remode the bbox information
                     instances.remove('pred_boxes')
-                    vis_output = visualizer.draw_instance_predictions(predictions=instances)
-                else:
-                    vis_output = visualizer.draw_instance_predictions(predictions=instances)
+                vis_output = visualizer.draw_instance_predictions(predictions=instances)
 
         return predictions, vis_output
 
