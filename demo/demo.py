@@ -136,10 +136,12 @@ def json_output(output, predictions, filename, path):
     out_filename = os.path.join(output, filename) + '.json'
     with open(path, 'rb') as img_file:
         img_data = base64.b64encode(img_file.read()).decode("utf-8")
-    labels = {0: 'stalk',
-              1: 'spear',
-              2: 'bar',
-              3: 'straw'}
+    labels = {
+        0: 'stalk',
+        1: 'spear',
+        2: 'bar',
+        3: 'straw'
+    }
     image_height, image_width = predictions['instances'].image_size
     # pred_boxes = np.asarray(predictions["instances"].pred_boxes)
     scores = predictions['instances'].scores.cpu().numpy()
@@ -147,13 +149,13 @@ def json_output(output, predictions, filename, path):
     pred_masks = predictions["instances"].pred_masks.cpu().numpy()
 
     content = {
-    "version": "4.5.5",
-    "flags": {},
-    "shapes": [],
-    "imagePath": filename,
-    "imageData": img_data,
-    "imageHeight": image_height,
-    "imageWidth": image_width
+        "version": "4.5.5",
+        "flags": {},
+        "shapes": [],
+        "imagePath": filename,
+        "imageData": img_data,
+        "imageHeight": image_height,
+        "imageWidth": image_width
     }
 
     for i in range(len(pred_classes)):
@@ -171,19 +173,34 @@ def json_output(output, predictions, filename, path):
         # else:
 
         segmentation = pred_masks[i]
+
         # plt.imsave(f"/home/rayhuang/photo_demo_used/segment_mask/segmentation_{i}.jpg", segmentation)
-        kernel = np.ones((5, 5), np.uint8)
-        segmentation = cv2.dilate(segmentation, kernel, iterations=2)
-        segmentation = cv2.erode(segmentation, kernel, iterations=2)
+        kernel = np.ones((3, 3), np.uint8)
+        segmentation = cv2.dilate(segmentation, kernel, iterations=1)
+        segmentation = cv2.erode(segmentation, kernel, iterations=1)
 
         # Add edge padding around the image to prevent the mask from sticking to the edge and causing separate recognition.
         padding_size = 10
         segmentation = cv2.copyMakeBorder(segmentation, padding_size, padding_size, padding_size, padding_size, cv2.BORDER_CONSTANT, value=0)
+        segmentation = cv2.GaussianBlur(segmentation, (5, 5), 0)
         seg_contours = measure.find_contours(segmentation.T, 0.5)
-        # if i == 13:
-            # print(seg_contours)
-        print(f"{len(seg_contours) = }")
 
+        # from matplotlib.patches import Polygon
+        # output_path = "/home/rayhuang/photo_demo_used/segment_mask"
+        # original_mask_path = os.path.join(output_path, f"{i}_original_mask.png")
+        # plt.imsave(original_mask_path, segmentation, cmap='gray')
+
+        # # 儲存輪廓
+        # plt.figure(figsize=(8, 8))
+        # plt.imshow(segmentation, cmap='gray')
+        # for seg in seg_contours:
+        #     poly = Polygon(seg, edgecolor='r', fill=False)
+        #     plt.gca().add_patch(poly)
+        # plt.title(f"Contours - Instance {i}")
+        # plt.axis('off')
+        # contours_path = os.path.join(output_path, f"{i}_contours.png")
+        # plt.savefig(contours_path)
+        # plt.close()
 
         for seg in seg_contours:
             # Compensation coordinates
