@@ -336,14 +336,13 @@ def setup(args):
     add_deeplab_config(cfg)
     add_maskdino_config(cfg)
     cfg.merge_from_file(args.config_file)
+    cfg.merge_from_list(args.opts)
 
     date = datetime.now().strftime("%Y%m%d_%H%M%S")
     if args.eval_only:
         train_outdir = cfg.OUTPUT_DIR
-        cfg.OUTPUT_DIR = f"{train_outdir}_evaluation_time-{date}"
+        cfg.OUTPUT_DIR = f"{train_outdir}_evaluation_time-{date}_dataset-{cfg.DATASETS.TEST}"
         os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-
-    cfg.merge_from_list(args.opts)
 
     cfg.freeze()
     default_setup(cfg, args)
