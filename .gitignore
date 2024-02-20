@@ -58,3 +58,4 @@ demo/demo.sh
 stalk_count*
 output*
 train_history.txt
+demo/generate_pseudo_label.sh
