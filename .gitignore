@@ -54,8 +54,7 @@ _darcs
 .DS_Store
 train.sh
 val.sh
-demo/demo.sh
-stalk_count*
+*.sh
+*.csv
 output*
 train_history.txt
-demo/generate_pseudo_label.sh
