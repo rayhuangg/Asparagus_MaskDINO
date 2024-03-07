@@ -494,20 +494,20 @@ class MaskDINO(nn.Module):
         result.scores = scores_per_image * mask_scores_per_image
         result.pred_classes = labels_per_image
 
-        # TODO: add threshold into cfg
+        ## USELESS, 原先從模型inference直接排除低於threshold結果，此舉動會降低evaluation表現，因此從demo/predictor.py rin_on_image函數再進行篩選功能即可
         # Only keep instances with scores > threshold
-        threshold = 0.6 # Human-defined threshold
-        high_score_indices = result.scores > threshold  # Find instance indices with scores greater than a threshold
-        filtered_result = Instances(result.image_size)
+        # threshold = 0.05 # Human-defined threshold
+        # high_score_indices = result.scores > threshold  # Find instance indices with scores greater than a threshold
+        # filtered_result = Instances(result.image_size)
 
-        # Select the corresponding result based on the high score index
-        filtered_result.pred_masks = result.pred_masks[high_score_indices]
-        filtered_result.pred_boxes = result.pred_boxes[high_score_indices]
-        filtered_result.scores = result.scores[high_score_indices]
-        filtered_result.pred_classes = result.pred_classes[high_score_indices]
+        # # Select the corresponding result based on the high score index
+        # filtered_result.pred_masks = result.pred_masks[high_score_indices]
+        # filtered_result.pred_boxes = result.pred_boxes[high_score_indices]
+        # filtered_result.scores = result.scores[high_score_indices]
+        # filtered_result.pred_classes = result.pred_classes[high_score_indices]
 
-        return filtered_result
-        # return result
+        # return filtered_result
+        return result
 
     def box_postprocess(self, out_bbox, img_h, img_w):
         # postprocess box height and width

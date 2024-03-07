@@ -63,23 +63,30 @@ class VisualizationDemo(object):
                 )
             if "instances" in predictions:
                 instances = predictions["instances"].to(self.cpu_device)
-                # 原本會輸出全部topk=100個instance，修改demo code使其只會輸出大於自己設定score的instance，一樣維持topk=100
-                # instances_ = Instances(instances.image_size)
-                # flag = False
-                # for index in range(len(instances)):
-                #     # print(instances[index].scores)
-                #     score = instances[index].scores[0]
-                #     if score > 0.75: # 置信度设置
-                #         if flag == False:
-                #             instances_ = instances[index]
-                #             flag = True
-                #         else:
-                #             instances_ = Instances.cat([instances_, instances[index]])
+
+                ######
+                ### 原本會輸出全部topk=100個instance，修改demo code使其只會輸出大於自己設定score的instance，一樣維持topk=100
+                ### instanses: original prediction, including top 100 result. a lot of low confident score.
+                ### instances_filtered: filter the score lower than specified threshold. (current 0.5)
+                ######
+
+                instances_filtered = Instances(instances.image_size)
+                first_iter_flag = False
+                for index in range(len(instances)):
+                    score = instances[index].scores[0]
+                    if score > 0.5: # SET confident score
+                        if first_iter_flag == False:
+                            instances_filtered = instances[index]
+                            first_iter_flag = True
+                        else:
+                            instances_filtered = Instances.cat([instances_filtered, instances[index]])
 
                 # User select whether remove the bbox information
                 if not_draw_bbox:
                     instances.remove('pred_boxes')
-                vis_output = visualizer.draw_instance_predictions(predictions=instances)
+                    instances_filtered.remove('pred_boxes')
+                vis_output = visualizer.draw_instance_predictions(predictions=instances_filtered)
+                predictions["instances"] = instances_filtered # use filtered result to replece the original instances
 
         return predictions, vis_output
 
