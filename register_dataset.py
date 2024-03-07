@@ -1,14 +1,32 @@
 import os
 from detectron2.data.datasets import register_coco_instances
 
-def register_dataset(d2_dataset_name, metadata, raw_folder_name):
+
+def register_train(d2_dataset_name, metadata, json_path, dataset_path):
+    if os.path.exists(f"{json_path}/instances_train2017.json"):
+        register_coco_instances(f"{d2_dataset_name}_train", metadata, f"{json_path}/instances_train2017.json", dataset_path)
+
+
+def register_val(d2_dataset_name, metadata, json_path, dataset_path):
+    if os.path.exists(f"{json_path}/instances_val2017.json"):
+        register_coco_instances(f"{d2_dataset_name}_val", metadata, f"{json_path}/instances_val2017.json", dataset_path)
+
+
+def register_dataset(d2_dataset_name, metadata, raw_folder_name, type="both"):
+    """
+        type: Specified what type of dataset slould be registered. "both", "train", "val"
+    """
     json_path = f"/home/rayhuang/Asparagus_Dataset/COCO_Format/{raw_folder_name}"
     dataset_path = "/home/rayhuang/Asparagus_Dataset"
 
-    if os.path.exists(f"{json_path}/instances_train2017.json"):
-        register_coco_instances(f"{d2_dataset_name}_train", metadata, f"{json_path}/instances_train2017.json", dataset_path)
-    if os.path.exists(f"{json_path}/instances_val2017.json"):
-        register_coco_instances(f"{d2_dataset_name}_val", metadata, f"{json_path}/instances_val2017.json", dataset_path)
+    if type=="both":
+        register_train(d2_dataset_name, metadata, json_path, dataset_path)
+        register_val(d2_dataset_name, metadata, json_path, dataset_path)
+    elif type=="train":
+        register_train(d2_dataset_name, metadata, json_path, dataset_path)
+    elif type=="val":
+        register_val(d2_dataset_name, metadata, json_path, dataset_path)
+
 
 def register_my_datasets():
     metadata_2classes = {"thing_classes": ["stalk", "spear"],
@@ -36,4 +54,5 @@ def register_my_datasets():
     ## full data(add 2021 pseudo label 6000 pics)
     register_dataset("Add2021pseudo", metadata_2classes, "20240208_Add2021PatrolData_6000pic")
 
-
+    # Only the high density images dataset, Joan support label 32 images,
+    register_dataset("20240303_Only_high_density", metadata_2classes, "20240303_Only_high_density_val", type="val")
