@@ -181,7 +181,7 @@ def json_output(output, predictions, filename, path):
 
         segmentation = pred_masks[i]
 
-        # plt.imsave(f"/home/rayhuang/photo_demo_used/segment_mask/segmentation_{i}.jpg", segmentation)
+        # plt.imsave(f"/home/rayhuang/photo_demo_used/temp/seg/segmentation_{i}_original.jpg", segmentation, cmap='gray')
         kernel = np.ones((3, 3), np.uint8)
         segmentation = cv2.dilate(segmentation, kernel, iterations=1)
         segmentation = cv2.erode(segmentation, kernel, iterations=1)
@@ -193,11 +193,11 @@ def json_output(output, predictions, filename, path):
         seg_contours = measure.find_contours(segmentation.T, 0.5)
 
         # from matplotlib.patches import Polygon
-        # output_path = "/home/rayhuang/photo_demo_used/segment_mask"
-        # original_mask_path = os.path.join(output_path, f"{i}_original_mask.png")
-        # plt.imsave(original_mask_path, segmentation, cmap='gray')
+        # output_path = "/home/rayhuang/photo_demo_used/temp/seg/"
+        # mask_path = os.path.join(output_path, f"segmentation_{i}_after.png")
+        # plt.imsave(mask_path, segmentation, cmap='gray')
 
-        # # 儲存輪廓
+        # 儲存輪廓
         # plt.figure(figsize=(8, 8))
         # plt.imshow(segmentation, cmap='gray')
         # for seg in seg_contours:
@@ -435,7 +435,6 @@ def calculate_pixel_height_width(pred_masks, target_index, image_size):
     return height, width
 
 
-
 def dump_result_to_csv_file(results, csv_filename):
     # Fisrt time, create csv file
     if not os.path.isfile(csv_filename):
@@ -476,8 +475,6 @@ if __name__ == "__main__":
             filename = Path(path).name
             start_time = time.time()
             predictions, visualized_output = demo.run_on_image(img, args.not_draw_bbox)
-            pred_classes_list = predictions['instances'].pred_classes.tolist()
-            count_of_stalk = pred_classes_list.count(0)
             logger.info(
                 "{}: {} in {:.2f}s".format(
                     path,
@@ -495,6 +492,8 @@ if __name__ == "__main__":
                     dump_result_to_csv_file(results, args.spear_measure_csv_name)
 
             if args.csv_out_stalk_count is True:
+                pred_classes_list = predictions['instances'].pred_classes.tolist()
+                count_of_stalk = pred_classes_list.count(0)
                 with open('stalk_count.csv', 'a', newline='') as csvfile:
                     writer = csv.writer(csvfile)
                     if os.stat('stalk_count.csv').st_size == 0:  # Check if the file is empty
