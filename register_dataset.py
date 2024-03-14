@@ -3,13 +3,21 @@ from detectron2.data.datasets import register_coco_instances
 
 
 def register_train(d2_dataset_name, metadata, json_path, dataset_path):
-    if os.path.exists(f"{json_path}/instances_train2017.json"):
-        register_coco_instances(f"{d2_dataset_name}_train", metadata, f"{json_path}/instances_train2017.json", dataset_path)
+    instances_json_path = os.path.join(json_path, "instances_train2017.json")
+
+    if not os.path.isfile(instances_json_path):
+        raise FileNotFoundError(f"COCO instances JSON file not found at: {instances_json_path}")
+
+    register_coco_instances(f"{d2_dataset_name}_train", metadata, instances_json_path, dataset_path)
 
 
 def register_val(d2_dataset_name, metadata, json_path, dataset_path):
-    if os.path.exists(f"{json_path}/instances_val2017.json"):
-        register_coco_instances(f"{d2_dataset_name}_val", metadata, f"{json_path}/instances_val2017.json", dataset_path)
+    instances_json_path = os.path.join(json_path, "instances_val2017.json")
+
+    if not os.path.isfile(instances_json_path):
+        raise FileNotFoundError(f"COCO instances JSON file not found at: {instances_json_path}")
+
+    register_coco_instances(f"{d2_dataset_name}_val", metadata, instances_json_path, dataset_path)
 
 
 def register_dataset(d2_dataset_name, metadata, raw_folder_name, type="both"):
@@ -56,3 +64,8 @@ def register_my_datasets():
 
     # Only the high density images dataset, Joan support label 32 images,
     register_dataset("20240303_Only_high_density", metadata_2classes, "20240303_Only_high_density_val", type="val")
+
+
+if __name__ == "__main__":
+    register_my_datasets()
+    print("Successfully registered all datasets")
