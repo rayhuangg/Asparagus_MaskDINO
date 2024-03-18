@@ -1,4 +1,4 @@
-_BASE_: ../maskdino_R50_bs16_50ep_3s_dowsample1_2048.yaml
+_BASE_: ../swin/maskdino_swin_small.yaml
 DATALOADER:
   NUM_WORKERS: 4
 MODEL:
@@ -15,11 +15,12 @@ MODEL:
       SEMANTIC_ON: false
 SOLVER:
   MAX_ITER: 150000
-  STEPS: (50000, 90000, 110000)
-  CHECKPOINT_PERIOD: 5000
+  STEPS: (120000,)
+  CHECKPOINT_PERIOD: 10000
+  IMS_PER_BATCH: 1
 DATASETS:
   TRAIN: ("20231213_ValidationSet_0point1_train",)
   TEST: ("20231213_ValidationSet_0point1_val",)
 TEST:
-  EVAL_PERIOD: 5000 # default 5000
+  EVAL_PERIOD: 10000
 SEED: 11631026

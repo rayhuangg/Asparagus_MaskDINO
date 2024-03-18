@@ -1,4 +1,4 @@
-_BASE_: maskdino_R50_bs16_50ep_4s_dowsample1_2048.yaml
+_BASE_: maskdino_SwinL_bs16_50ep_4s_dowsample1_2048.yaml
 MODEL:
   BACKBONE:
     NAME: "D2SwinTransformer"
@@ -11,19 +11,6 @@ MODEL:
     DROP_PATH_RATE: 0.3
     PATCH_NORM: True
     PRETRAIN_IMG_SIZE: 384
+  WEIGHTS: "/home/rayhuang/MaskDINO/pretrain_model/backbone/swin_base_patch4_window12_384_22k.pth"
 
-SOLVER:
-  MAX_ITER: 150000
-  STEPS: (90000, 130000)
-  CHECKPOINT_PERIOD: 15000
-DATASETS:
-  TRAIN: ("asparagus_train_full_1920",)
-  TEST: ("asparagus_val_full_1920",)
-  # TEST: ("asparagus_val_small",)
-  # TRAIN: ("asparagus_train_small",)
-INPUT:
-  MAX_SIZE_TEST: 1333
-  MAX_SIZE_TRAIN: 1333
-TEST:
-  EVAL_PERIOD: 15000 # default 5000
 SEED: 11631026
