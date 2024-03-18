@@ -136,12 +136,12 @@ def test_opencv_video_format(codec, file_ext):
         return False
 
 
-def json_output(output, predictions, filename, path):
+def json_output(predictions, output_folder_name, img_filename, raw_image_path):
     '''
     Save predictions as json file
     '''
-    out_filename = os.path.join(output, filename) + '.json'
-    with open(path, 'rb') as img_file:
+    out_filename = os.path.join(output_folder_name, os.path.splitext(img_filename)[0]) + '.json'
+    with open(raw_image_path, 'rb') as img_file:
         img_data = base64.b64encode(img_file.read()).decode("utf-8")
     labels = {
         0: 'stalk',
@@ -159,7 +159,7 @@ def json_output(output, predictions, filename, path):
         "version": "4.5.5",
         "flags": {},
         "shapes": [],
-        "imagePath": filename,
+        "imagePath": img_filename,
         "imageData": img_data,
         "imageHeight": image_height,
         "imageWidth": image_width
@@ -527,8 +527,8 @@ if __name__ == "__main__":
             if args.json_output:
                 if not os.path.isdir(args.json_output):
                     os.makedirs(args.json_output)
-                json_folder = args.json_output
-                json_output(json_folder, predictions, filename, path)
+                json_output_folder = args.json_output
+                json_output(predictions, output_folder_name=json_output_folder,  img_filename=filename, raw_image_path=path)
 
     elif args.webcam:
         assert args.input is None, "Cannot have both --input and --webcam!"
