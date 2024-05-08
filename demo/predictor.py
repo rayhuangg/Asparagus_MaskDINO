@@ -81,11 +81,18 @@ class VisualizationDemo(object):
                         else:
                             instances_filtered = Instances.cat([instances_filtered, instances[index]])
 
-                # User select whether remove the bbox information
-                if not_draw_bbox:
-                    instances.remove('pred_boxes')
-                    instances_filtered.remove('pred_boxes')
-                vis_output = visualizer.draw_instance_predictions(predictions=instances_filtered)
+                # Check if there are any instances after filtering
+                if hasattr(instances_filtered, 'scores') and len(instances_filtered.scores) > 0:
+                    # User select whether remove the bbox information
+                    if not_draw_bbox:
+                        instances_filtered.remove('pred_boxes')
+                    vis_output = visualizer.draw_instance_predictions(predictions=instances_filtered)
+
+                else:
+                    print("No instances found above the confidence threshold.")
+                    vis_output = visualizer.get_output()
+
+
                 predictions["instances"] = instances_filtered # use filtered result to replece the original instances
 
         return predictions, vis_output
