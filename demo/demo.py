@@ -475,10 +475,15 @@ if __name__ == "__main__":
             filename = Path(path).name
             start_time = time.time()
             predictions, visualized_output = demo.run_on_image(img, args.not_draw_bbox)
+            if hasattr(predictions["instances"], 'scores') and len(predictions["instances"].scores) > 0:
+                len_of_prediction = len(predictions["instances"])
+            else:
+                len_of_prediction = 0
+
             logger.info(
                 "{}: {} in {:.2f}s".format(
                     path,
-                    "detected {} instances".format(len(predictions["instances"]))
+                    "detected {} instances".format(len_of_prediction)
                     if "instances" in predictions
                     else "finished",
                     time.time() - start_time,
