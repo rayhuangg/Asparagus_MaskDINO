@@ -193,7 +193,7 @@ class MaskDINODecoder(nn.Module):
         modified from dn-detr. You can refer to dn-detr
         https://github.com/IDEA-Research/DN-DETR/blob/main/models/dn_dab_deformable_detr/dn_components.py
         for more details
-            :param dn_args: scalar, noise_scale
+            :param dn_args(targets?): scalar, noise_scale
             :param tgt: original tgt (content) in the matching part
             :param refpoint_emb: positional anchor queries in the matching part
             :param batch_size: bs
@@ -238,6 +238,7 @@ class MaskDINODecoder(nn.Module):
             if noise_scale > 0:
                 p = torch.rand_like(known_labels_expaned.float())
                 chosen_indice = torch.nonzero(p < (noise_scale * 0.5)).view(-1)  # half of bbox prob
+                ## TODO: 確認這邊的LABEL FLIP
                 new_label = torch.randint_like(chosen_indice, 0, self.num_classes)  # randomly put a new one here
                 known_labels_expaned.scatter_(0, chosen_indice, new_label)
             if noise_scale > 0:

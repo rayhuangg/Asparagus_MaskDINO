@@ -74,7 +74,14 @@ class MaskDINOHead(nn.Module):
     def forward(self, features, mask=None,targets=None):
         return self.layers(features, mask,targets=targets)
 
+    # 模型統一入口，處理全部的資料input到output結果
     def layers(self, features, mask=None,targets=None):
+        """
+        pixel_decoder: 同Mask2Former的pixel_decoder, 在這邊其實是transformer encoder, 對backbone feature做處理
+                       code position:maskdino/modeling/pixel_decoder/maskdino_encoder.py
+        predictor: transformer decorder, 做DN處理並且decode預測出最終結果
+                       code position: maskdino/modeling/transformer_decoder/maskdino_decoder.py
+        """
         mask_features, transformer_encoder_features, multi_scale_features = self.pixel_decoder.forward_features(features, mask)
 
         predictions = self.predictor(multi_scale_features, mask_features, mask, targets=targets)

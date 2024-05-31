@@ -58,12 +58,22 @@ def register_my_datasets():
 
     # Test used
     register_dataset("20231213_ValidationSet_0point1", metadata_2classes, "20231213_ValidationSet_0point1")
-    register_dataset("JoanAllData", metadata_2classes, "20240129_WithJoanAllData")
+    register_dataset("JoanAllData", metadata_2classes, "20240129_WithJoanAllData") # same as Base2kAddJoanAllData
+    register_dataset("Base2kAddJoanAllData", metadata_2classes, "20240129_WithJoanAllData")
     ## full data(add 2021 pseudo label 6000 pics)
     register_dataset("Add2021pseudo", metadata_2classes, "20240208_Add2021PatrolData_6000pic")
 
     # Only the high density images dataset, Joan support label 32 images,
     register_dataset("20240303_Only_high_density", metadata_2classes, "20240303_Only_high_density_val", type="val")
+
+    # TEMP USED
+    register_dataset("20240326_Only_high_density", metadata_2classes, "20240326_OnlyHighTrainingSet", type="train")
+
+    # 0416 add test
+    register_dataset("20240417_2021_5k_noArrange_with_high_density", metadata_2classes, "20240417_2021_5k_with_high_density", type="both")
+
+    # 0530 base 2k add 70 high density
+    register_dataset("20240530_2k_add_70_high_density", metadata_2classes, "20240530_2k_add_70_high_density", type="both")
 
 
 if __name__ == "__main__":
