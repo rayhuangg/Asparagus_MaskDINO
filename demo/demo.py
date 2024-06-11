@@ -116,6 +116,11 @@ def get_parser():
         action="store_true",
         help="Determine whether the demo output need to draw the bbox box.",
     )
+    parser.add_argument(
+        "--draw_stalk_count_on_output",
+        action="store_true",
+        help="Determine whether the demo output need to draw the stalk count.",
+    )
     return parser
 
 
@@ -474,7 +479,7 @@ if __name__ == "__main__":
             img = read_image(path, format="BGR")
             filename = Path(path).name
             start_time = time.time()
-            predictions, visualized_output = demo.run_on_image(img, args.not_draw_bbox)
+            predictions, visualized_output = demo.run_on_image(img, args.not_draw_bbox, args.draw_stalk_count_on_output)
             if hasattr(predictions["instances"], 'scores') and len(predictions["instances"].scores) > 0:
                 len_of_prediction = len(predictions["instances"])
             else:

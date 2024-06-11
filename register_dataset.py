@@ -66,15 +66,14 @@ def register_my_datasets():
     # Only the high density images dataset, Joan support label 32 images,
     register_dataset("20240303_Only_high_density", metadata_2classes, "20240303_Only_high_density_val", type="val")
 
-    # TEMP USED
-    register_dataset("20240326_Only_high_density", metadata_2classes, "20240326_OnlyHighTrainingSet", type="train")
-
     # 0416 add test
     register_dataset("20240417_2021_5k_noArrange_with_high_density", metadata_2classes, "20240417_2021_5k_with_high_density", type="both")
 
     # 0530 base 2k add 70 high density
     register_dataset("20240530_2k_add_70_high_density", metadata_2classes, "20240530_2k_add_70_high_density", type="both")
 
+    # 0605
+    register_dataset("20240605_only_high_density", metadata_2classes, "20240605_only_high_density_train", type="train")
 
 if __name__ == "__main__":
     register_my_datasets()

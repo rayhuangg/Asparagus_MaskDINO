@@ -37,7 +37,7 @@ class VisualizationDemo(object):
         else:
             self.predictor = DefaultPredictor(cfg)
 
-    def run_on_image(self, image, not_draw_bbox):
+    def run_on_image(self, image, not_draw_bbox, draw_stalk_count_on_output):
         """
         Args:
             image (np.ndarray): an image of shape (H, W, C) (in BGR order).
@@ -92,7 +92,12 @@ class VisualizationDemo(object):
                     print("No instances found above the confidence threshold.")
                     vis_output = visualizer.get_output()
 
-
+                # draw the predict number of stalk on the image
+                if draw_stalk_count_on_output:
+                    count =  instances_filtered.pred_classes.tolist().count(0)
+                    print(f"Stalk Count: {count}")
+                    vis_output = visualizer.draw_text(f"Stalk Count: {count}", (10, 10), horizontal_alignment="left")
+                    
                 predictions["instances"] = instances_filtered # use filtered result to replece the original instances
 
         return predictions, vis_output
