@@ -94,10 +94,14 @@ class VisualizationDemo(object):
 
                 # draw the predict number of stalk on the image
                 if draw_stalk_count_on_output:
-                    count =  instances_filtered.pred_classes.tolist().count(0)
+                    try:
+                        count =  instances_filtered.pred_classes.tolist().count(0)
+
+                    except:
+                        count = 0
                     print(f"Stalk Count: {count}")
                     vis_output = visualizer.draw_text(f"Stalk Count: {count}", (10, 10), horizontal_alignment="left")
-                    
+
                 predictions["instances"] = instances_filtered # use filtered result to replece the original instances
 
         return predictions, vis_output

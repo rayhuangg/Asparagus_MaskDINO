@@ -1,6 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
 # Modified by Bowen Cheng from: https://github.com/facebookresearch/detectron2/blob/master/demo/demo.py
 import argparse
+from datetime import datetime
 import glob
 import math
 import multiprocessing as mp
@@ -474,6 +475,7 @@ if __name__ == "__main__":
         if len(args.input) == 1:
             args.input = glob.glob(os.path.expanduser(args.input[0]))
             assert args.input, "The input path(s) was not found"
+            now = datetime.now()
         for path in tqdm.tqdm(args.input, disable=not args.output):
             # use PIL, to be consistent with evaluation
             img = read_image(path, format="BGR")
@@ -504,9 +506,10 @@ if __name__ == "__main__":
             if args.csv_out_stalk_count is True:
                 pred_classes_list = predictions['instances'].pred_classes.tolist()
                 count_of_stalk = pred_classes_list.count(0)
-                with open('stalk_count.csv', 'a', newline='') as csvfile:
+                file_name = f'stalk_count{now.strftime("%Y-%m-%d %H-%M-%S")}.csv'
+                with open(file_name, 'a', newline='') as csvfile:
                     writer = csv.writer(csvfile)
-                    if os.stat('stalk_count.csv').st_size == 0:  # Check if the file is empty
+                    if os.stat(file_name).st_size == 0:  # Check if the file is empty
                         writer.writerow(["filename", "count_of_stalk"])  # Add headers only if the file is empty
                     writer.writerow([filename, count_of_stalk])
 

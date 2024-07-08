@@ -73,7 +73,7 @@ def register_my_datasets():
     register_dataset("20240530_2k_add_70_high_density", metadata_2classes, "20240530_2k_add_70_high_density", type="both")
 
     # 0605
-    register_dataset("20240605_only_high_density", metadata_2classes, "20240605_only_high_density_train", type="train")
+    # register_dataset("20240605_only_high_density", metadata_2classes, "20240605_only_high_density_train", type="train")
 
 if __name__ == "__main__":
     register_my_datasets()
